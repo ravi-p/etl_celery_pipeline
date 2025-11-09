@@ -1,6 +1,7 @@
 # app/celery_app.py
 from celery import Celery
 from app.config import Config
+
 # Initialize Celery app
 celery_app = Celery(
     'etl_pipeline',
@@ -8,6 +9,7 @@ celery_app = Celery(
     backend=Config.CELERY_RESULT_BACKEND
 )
 celery_app.conf.update(
+
     task_serializer=Config.CELERY_TASK_SERIALIZER,
     result_serializer=Config.CELERY_RESULT_SERIALIZER,
     accept_content=Config.CELERY_ACCEPT_CONTENT,
@@ -21,12 +23,13 @@ celery_app.conf.update(
     },
     # Celery Beat Schedule
     beat_schedule={
-        'check-gmail-every-5-minutes': {
+        'check-gmail-every-1-minutes': {
             'task': 'app.tasks.check_gmail_for_invoices',
-            'schedule': 300.0,  # Every 300 seconds (5 minutes)
+            'schedule': 60.0,  # Every 60 seconds (1 minute)
             'options': {'queue': 'gmail_queue'},
         },
     }
 )
+
 if __name__ == '__main__':
     celery_app.start()

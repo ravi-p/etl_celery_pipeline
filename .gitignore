@@ -1,0 +1,3 @@
+*.pyc
+app/client_secret_celery.json
+.idea

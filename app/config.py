@@ -12,7 +12,7 @@ class Config:
     # and create OAuth 2.0 client credentials (Desktop app type).
     # Download the client_secret.json and rename it to credentials.json
     # and place it in the 'app' directory or specify the path here.
-    GMAIL_CREDENTIALS_FILE = 'client_secret_celery.json' # Make sure this file is in the 'app' directory
+    GMAIL_CREDENTIALS_FILE = r'client_secret_celery.json' # Make sure this file is in the 'app' directory
     GMAIL_TOKEN_FILE = 'token.json' # This file will be generated after first authentication
     GMAIL_SCOPES = ['https://www.googleapis.com/auth/gmail.readonly']
     GMAIL_INVOICE_SUBJECT = "Invoice details"

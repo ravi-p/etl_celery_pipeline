@@ -1,5 +1,5 @@
 # Dockerfile
-FROM python:3.9-slim-buster
+FROM python:3.12-slim
 WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
@@ -7,4 +7,5 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY app/ app/
 # Ensure the data directory exists for SQLite
 RUN mkdir -p data
-CMD ["tail", "-f", "/dev/null"] # Keep container running
+CMD ["tail", "-f", "/dev/null"]
+# Keep container running
