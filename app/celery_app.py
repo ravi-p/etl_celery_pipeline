@@ -31,5 +31,7 @@ celery_app.conf.update(
     }
 )
 
+# 👇 Add this line to register tasks
+from app import tasks
 if __name__ == '__main__':
     celery_app.start()

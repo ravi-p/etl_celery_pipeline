@@ -22,10 +22,11 @@ services:
   celery_worker_gmail:
       build: .
       container_name: etl_celery_worker_gmail
-      command: celery -A app.celery_app worker -l info -Q gmail_queue -n gmail_worke
+      command: celery -A app.celery_app worker -l info -Q gmail_queue -n gmail_worker
       volumes:
         - ./app:/app/app
         - ./data:/app/data # Mount data volume for sqlite
+        - ./app/client_secret_celery.json:/app/app/client_secret_celery.json
         - ./requirements.txt:/requirements.txt
       depends_on:
         - redis

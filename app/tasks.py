@@ -12,6 +12,7 @@ import os.path
 from bs4 import BeautifulSoup
 from app.celery_app import celery_app
 from app.config import Config
+import os
 
 
 # --- Helper for Gmail API Authentication ---
@@ -20,6 +21,8 @@ def get_gmail_service():
     # The file token.json stores the user's access and refresh tokens, and is
     # created automatically when the authorization flow completes for the first
     # time.
+    print("Current working Dir", os.getcwd())
+    print("GMAIL_CREDENTIALS_FILE path", Config.GMAIL_CREDENTIALS_FILE)
     if os.path.exists(Config.GMAIL_TOKEN_FILE):
         creds = Credentials.from_authorized_user_file(Config.GMAIL_TOKEN_FILE, Config.GMAIL_SCOPES)
     # If there are no (valid) credentials available, let the user log in.
@@ -29,7 +32,10 @@ def get_gmail_service():
         else:
             flow = InstalledAppFlow.from_client_secrets_file(
                 Config.GMAIL_CREDENTIALS_FILE, Config.GMAIL_SCOPES)
-            creds = flow.run_local_server(port=0)
+            # creds = flow.run_local_server(port=0)
+            creds = flow.run_console()
+
+
         # Save the credentials for the next run
         with open(Config.GMAIL_TOKEN_FILE, 'w') as token:
             token.write(creds.to_json())
@@ -121,7 +127,9 @@ def parse_invoice_email(email_body):
 def save_invoice_to_db(invoice_id, invoice_amount):
     print(f"Saving Invoice ID: {invoice_id}, Amount: {invoice_amount} to database...")
     try:
-        conn = sqlite3.connect(Config.DATABASE_URI)
+        db_path = Config.DATABASE_URI.replace('sqlite:///', '')
+        conn = sqlite3.connect(db_path)
+        # conn = sqlite3.connect(Config.DATABASE_URI)
         cursor = conn.cursor()
         # Create table if it doesn't exist
         cursor.execute('''
