@@ -32,8 +32,12 @@ def get_gmail_service():
         else:
             flow = InstalledAppFlow.from_client_secrets_file(
                 Config.GMAIL_CREDENTIALS_FILE, Config.GMAIL_SCOPES)
+            # Error: unexpected error occurred: could not locate runnable browser
             # creds = flow.run_local_server(port=0)
-            creds = flow.run_console()
+            # An unexpected error occurred: 'InstalledAppFlow' object has no attribute 'run_console'
+            # creds = flow.run_console()
+            # need to click on link to get token json
+            creds = flow.run_local_server(open_browser=False)
 
 
         # Save the credentials for the next run
