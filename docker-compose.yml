@@ -1,24 +1,47 @@
 version: '3.8'
 services:
   redis:
-    image: redis:8.2.3-alpine
+    image: redis:8.2.3-alpine #Redis acting as the message broker
     container_name: etl_redis
-    ports:
+    ports: # Maps port 6379 on your host machine to port 6379 inside the Redis container
       - "6379:6379"
     volumes:
+      # This defines a named volume called redis_data and mounts it to the /data directory inside the Redis container.
+      # This is crucial for data persistence. Even if the Redis container is removed,
+      # the data stored in redis_data will persist, so your Redis data isn't lost
       - redis_data:/data
+  # This service is responsible for scheduling periodic tasks in your Celery application.
   celery_beat:
+    # This indicates that Docker should build an image for this service using the Dockerfile found in the current dir(.)
+    # This implies you have a custom application image.
       build: .
       container_name: etl_celery_beat
+      # This is the command executed when the container starts. It runs the Celery Beat scheduler,
+       # loading tasks from app.celery_app and logging at the info level.
       command: celery -A app.celery_app beat -l info
       volumes:
+        # Mounts the local app directory (containing your Python application code) into the container at /app/app.
+        # This allows you to develop your code locally and have it reflected inside the container
+        # without rebuilding the image every time.
         - ./app:/app/app
         - ./data:/app/data # Mount data volume for sqlite
         - ./requirements.txt:/requirements.txt
       depends_on:
+        # This tells Docker Compose that celery_beat depends on the redis service.
+        # Docker Compose will ensure Redis is started before celery_beat.
+        # This doesn't wait for Redis to be fully "ready," just for its container to start.
         - redis
       env_file:
         - .env # If you have sensitive env variables, use this. For now, config.py handles it.
+
+# celery_worker_gmail:, celery_worker_parser:, celery_worker_db_saver:
+# These services are all Celery worker instances. They are designed to process tasks from specific queues.
+#  They share many common configurations with celery_beat as they likely use the same application code.
+
+# worker: Specifies that this is a Celery worker.
+# -Q [queue_name]: Each worker is configured to listen to a specific queue (gmail_queue, parser_queue, db_saver_queue).
+# This allows you to distribute different types of tasks to different workers, improving parallelism and task management.
+# -n [worker_name]: Assigns a unique name to each worker instance within Celery, which is helpful for monitoring.
   celery_worker_gmail:
       build: .
       container_name: etl_celery_worker_gmail
